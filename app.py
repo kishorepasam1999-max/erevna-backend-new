@@ -32,6 +32,8 @@ from routes.response_routes import responses_ns
 from routes.ai_analytics_routes import api as ai_analytics_ns
 from routes.client_report_routes import api as client_report_ns
 from routes.user_routes import api as user_ns
+from routes.game_center_routes import api as game_center_ns
+from routes.game_apk_routes import api as game_apk_ns
 
 
 from flask_cors import CORS
@@ -55,7 +57,7 @@ if neon_url and neon_url != "postgresql://username:password@ep-xxx-xxx.us-east-1
     app.config["SQLALCHEMY_DATABASE_URI"] = neon_url
 else:
     # Fallback for development - replace with your actual Neon connection string
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/erevna?sslmode=require"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://neondb_owner:npg_vDoJKWr7MaB5@ep-twilight-moon-a14vpqmd-pooler.ap-southeast-1.aws.neon.tech/erevna?sslmode=require&channel_binding=require"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # -------------------------------
@@ -122,6 +124,8 @@ api.add_namespace(responses_ns, path="/responses")
 api.add_namespace(ai_analytics_ns, path="/ai-analytics")
 api.add_namespace(client_report_ns, path="/client-report")
 api.add_namespace(user_ns, path="/users")
+api.add_namespace(game_center_ns, path="/game-center")
+api.add_namespace(game_apk_ns, path="/game-apk")
 
 # -------------------------------
 # Create Tables if Not Exists
