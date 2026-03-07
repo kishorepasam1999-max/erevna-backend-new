@@ -130,8 +130,13 @@ api.add_namespace(game_apk_ns, path="/game-apk")
 # -------------------------------
 # Create Tables if Not Exists
 # -------------------------------
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+        print("✅ Database tables created successfully")
+except Exception as e:
+    print(f"⚠️ Database connection issue: {e}")
+    print("📄 Swagger will still work without database")
 
 # -------------------------------
 # Run App
