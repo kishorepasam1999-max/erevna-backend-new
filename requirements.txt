@@ -10,11 +10,13 @@ Flask-CORS==6.0.2
 # Database
 psycopg2-binary==2.9.11
 
+# Data Processing (needed by game_questions_routes.py)
+pandas==3.0.0
+numpy==2.4.2
+
 # Essential Utilities
 python-dotenv==1.2.1
 requests==2.32.5
 
-# Remove heavy dependencies unless needed:
-# pandas==3.0.0  # Uncomment if you actually use data analysis
-# numpy==2.4.2  # Uncomment if you actually use numerical operations
-# PyMySQL==1.1.2  # Not needed if using PostgreSQL only
+# Optional: MySQL support (remove if only using PostgreSQL)
+# PyMySQL==1.1.2  # Uncomment if you need MySQL support
