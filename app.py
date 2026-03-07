@@ -44,7 +44,7 @@ app = Flask(__name__)
 # -------------------------------
 # CORS Configuration
 # -------------------------------
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
 
 # -------------------------------
 # SQLAlchemy Configuration (Neon PostgreSQL)
