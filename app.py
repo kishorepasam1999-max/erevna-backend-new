@@ -63,7 +63,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # -------------------------------
 # JWT Configuration
 # -------------------------------
-app.config["JWT_SECRET_KEY"] = "supersecret"
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecret")
 app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 app.config["JWT_ALGORITHM"] = "HS256"
