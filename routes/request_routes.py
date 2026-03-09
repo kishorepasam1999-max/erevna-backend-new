@@ -3,7 +3,6 @@ from flask import request
 from extensions import db
 from models.research_request import ResearchRequestNew
 from datetime import datetime
-from flask_cors import cross_origin
 
 
 
@@ -176,7 +175,6 @@ class ResearchRequestsList(Resource):
 
 @api.route("/research-requests/getAll", methods=["GET", "OPTIONS"])
 class ResearchRequestsListNew(Resource):
-    @cross_origin()
     def options(self):
         return {'Allow': 'GET'}, 200, {
             'Access-Control-Allow-Origin': '*',
@@ -184,7 +182,6 @@ class ResearchRequestsListNew(Resource):
             'Access-Control-Allow-Headers': 'Content-Type'
         }
 
-    @cross_origin()
     def get(self):
         requests = ResearchRequestNew.query.order_by(ResearchRequestNew.id.desc()).all()
         return [r.to_dict() for r in requests], 200
