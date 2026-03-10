@@ -18,20 +18,6 @@ services:
     # JWT Configuration
     - key: JWT_SECRET_KEY
       generateValue: true
-    # Gmail SMTP Configuration (FIXED - Try SSL Port 465)
-    - key: MAIL_SERVER
-      value: smtp.gmail.com
-    - key: MAIL_PORT
-      value: 465
-    - key: MAIL_USE_TLS
-      value: false
-    - key: MAIL_USE_SSL
-      value: true
-    - key: MAIL_USERNAME
+    # Resend Email API (Cloud-Friendly Solution)
+    - key: RESEND_API_KEY
       sync: false
-    - key: MAIL_PASSWORD
-      sync: false
-    - key: MAIL_DEFAULT_SENDER
-      sync: false
-    - key: MAIL_DEBUG
-      value: true

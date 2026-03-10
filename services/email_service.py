@@ -112,27 +112,43 @@ def send_otp_email_ses(email, otp):
 
 
 def send_otp_email(email, otp):
-    """Send OTP using Flask-Mail with proper error logging"""
-    import traceback
-    
+    """Send OTP using Resend API (cloud-friendly solution)"""
+    return send_otp_email_resend(email, otp)
+
+
+def send_otp_email_resend(email, otp):
+    """Send OTP using Resend API (works on cloud platforms)"""
     try:
-        print(f"� Attempting to send OTP to {email}")
+        api_key = os.getenv('RESEND_API_KEY')
+        if not api_key:
+            print("❌ Resend API key not found")
+            return False
+            
+        url = "https://api.resend.com/emails"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
         
-        msg = Message(
-            subject="OTP Verification",
-            sender="21bq1a0569@gmail.com",
-            recipients=[email],
-            body=f"Your OTP is {otp}"
-        )
+        data = {
+            "from": "onboarding@resend.dev",
+            "to": [email],
+            "subject": "Your Login OTP",
+            "text": f"Your OTP is {otp}. It expires in 5 minutes."
+        }
         
-        mail.send(msg)
-        print("✅ Email sent successfully")
+        response = requests.post(url, headers=headers, json=data)
         
+        if response.status_code == 200:
+            print(f"✅ OTP email sent via Resend to {email}")
+            return True
+        else:
+            print(f"❌ Resend error: {response.status_code} - {response.text}")
+            return False
+            
     except Exception as e:
-        print("❌ EMAIL FAILED")
-        print("Error:", str(e))
-        traceback.print_exc()
-        raise e
+        print(f"❌ Resend error: {str(e)}")
+        return False
 
 
 def generate_random_password(length=12):
