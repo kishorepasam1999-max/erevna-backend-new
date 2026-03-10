@@ -122,7 +122,19 @@ class Signin(Resource):
         db.session.commit()
         
         # Email OTP
-        send_otp_email(user.email, otp)
+        try:
+            send_otp_email(user.email, otp)
+            print(f"✅ OTP email sent to {user.email}")
+        except Exception as e:
+            print(f"❌ Email sending failed: {e}")
+            # Continue without email for now
+            return {
+                "success": True,
+                "message": f"OTP generated (email failed): {otp}",
+                "user_id": user.id,
+                "user": user.serialize(),
+                "debug_otp": otp  # For testing only
+            }, 200
         
         return {
             "success": True,
