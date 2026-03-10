@@ -71,6 +71,7 @@ app.config["JWT_ALGORITHM"] = "HS256"
 # -------------------------------
 # Email / SMTP Configuration
 # -------------------------------
+# Using Resend API instead of SMTP (cloud-friendly)
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
@@ -81,15 +82,21 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', '21bq1a0569
 app.config['MAIL_DEBUG'] = os.getenv('MAIL_DEBUG', 'true').lower() == 'true'
 app.config['MAIL_SUPPRESS_SEND'] = False  # ChatGPT recommended
 
-# Debug: Print email configuration
-print(f"🔧 Email Config - Server: {app.config['MAIL_SERVER']}")
-print(f"🔧 Email Config - Username: {app.config['MAIL_USERNAME']}")
-print(f"🔧 Email Config - Password Set: {'Yes' if app.config['MAIL_PASSWORD'] else 'No'}")
-print(f"🔧 Email Config - Port: {app.config['MAIL_PORT']}")
-print(f"🔧 Email Config - TLS: {app.config['MAIL_USE_TLS']}")
-print(f"🔧 Email Config - SSL: {app.config['MAIL_USE_SSL']}")
-print(f"🔧 Email Config - Debug: {app.config['MAIL_DEBUG']}")
-print(f"🔧 Email Config - Suppress Send: {app.config['MAIL_SUPPRESS_SEND']}")
+# Check if Resend API key is available
+resend_api_key = os.getenv('RESEND_API_KEY')
+if resend_api_key:
+    print(f"📧 Using Resend API for email delivery")
+    print(f"🔧 Resend API Key Set: {'Yes' if resend_api_key else 'No'}")
+else:
+    print(f"📧 Using Gmail SMTP for email delivery")
+    print(f"🔧 Gmail Config - Server: {app.config['MAIL_SERVER']}")
+    print(f"🔧 Gmail Config - Username: {app.config['MAIL_USERNAME']}")
+    print(f"🔧 Gmail Config - Password Set: {'Yes' if app.config['MAIL_PASSWORD'] else 'No'}")
+    print(f"🔧 Gmail Config - Port: {app.config['MAIL_PORT']}")
+    print(f"🔧 Gmail Config - TLS: {app.config['MAIL_USE_TLS']}")
+    print(f"🔧 Gmail Config - SSL: {app.config['MAIL_USE_SSL']}")
+    print(f"🔧 Gmail Config - Debug: {app.config['MAIL_DEBUG']}")
+    print(f"🔧 Gmail Config - Suppress Send: {app.config['MAIL_SUPPRESS_SEND']}")
 
 # -------------------------------
 # Initialize Extensions
