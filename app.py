@@ -145,6 +145,9 @@ if __name__ == "__main__":
     # Production-ready configuration
     debug_mode = os.getenv('FLASK_ENV', 'development') != 'production'
     host = os.getenv('HOST', '0.0.0.0')
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 10000))  # Render uses PORT env var
+    
+    print(f"🚀 Starting server on {host}:{port}")
+    print(f"🔧 Debug mode: {debug_mode}")
     
     app.run(debug=debug_mode, host=host, port=port)

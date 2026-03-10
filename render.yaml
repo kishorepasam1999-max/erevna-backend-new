@@ -13,6 +13,9 @@ services:
       value: production
     - key: HOST
       value: 0.0.0.0
+    # Port Configuration (Render will set PORT automatically)
+    - key: PORT
+      value: 10000
     # JWT Configuration (Auto-generated)
     - key: JWT_SECRET_KEY
       generateValue: true
