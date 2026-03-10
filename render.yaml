@@ -21,3 +21,6 @@ services:
     # Resend Email API (Cloud-Friendly Solution)
     - key: RESEND_API_KEY
       sync: false
+    # Deployment trigger
+    - key: DEPLOY_VERSION
+      value: "2025-03-10-v2"
