@@ -34,13 +34,9 @@ FLASK_ENV=production
 ```
 HOST=0.0.0.0
 ```
+**Note:** Render automatically assigns ports, so no PORT variable needed
 
-### 5. PORT
-```
-PORT=5000
-```
-
-## 📧 OPTIONAL ENVIRONMENT VARIABLES
+## OPTIONAL ENVIRONMENT VARIABLES
 
 ### For Email Services (if needed)
 ```
@@ -52,7 +48,7 @@ MAIL_PASSWORD=your_app_password
 MAIL_DEFAULT_SENDER=your_email@gmail.com
 ```
 
-## 🚀 RENDER SETUP STEPS
+## RENDER SETUP STEPS
 
 ### Step 1: Create Render Service
 1. Go to [render.com](https://render.com)
@@ -67,14 +63,13 @@ In Render dashboard → Environment tab:
 2. **JWT_SECRET_KEY** - Generate or create secure key
 3. **FLASK_ENV** - Set to "production"
 4. **HOST** - Set to "0.0.0.0"
-5. **PORT** - Set to "5000"
 
 ### Step 3: Deploy
 - Click "Create Web Service"
 - Render will automatically build and deploy
 - Wait for deployment to complete
 
-## 🔍 VERIFICATION
+## VERIFICATION
 
 After deployment, test:
 ```bash
@@ -85,7 +80,7 @@ curl https://your-app-name.onrender.com/swagger
 curl https://your-app-name.onrender.com/game-apk/list
 ```
 
-## 📱 MOBILE APP UPDATE
+## MOBILE APP UPDATE
 
 After deployment, update your mobile app:
 
