@@ -5,14 +5,18 @@ services:
   buildCommand: pip install -r requirements.txt
   startCommand: python app.py
   envVars:
+    # Database Configuration
     - key: NEON_DATABASE_URL
       sync: false
-    - key: JWT_SECRET_KEY
-      generateValue: true
+    # Flask Configuration
     - key: FLASK_ENV
       value: production
     - key: HOST
       value: 0.0.0.0
+    # JWT Configuration (Auto-generated)
+    - key: JWT_SECRET_KEY
+      generateValue: true
+    # Email Configuration (Gmail SMTP)
     - key: MAIL_SERVER
       value: smtp.gmail.com
     - key: MAIL_PORT
