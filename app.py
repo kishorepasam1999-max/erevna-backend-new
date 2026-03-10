@@ -75,8 +75,15 @@ app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '21bq1a0569@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'xzcvkrsxpjfqtxev')  # Add fallback
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'qjjmyzidywxxasbi')  # Your correct app password
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', '21bq1a0569@gmail.com')
+
+# Debug: Print email configuration
+print(f"🔧 Email Config - Server: {app.config['MAIL_SERVER']}")
+print(f"🔧 Email Config - Username: {app.config['MAIL_USERNAME']}")
+print(f"🔧 Email Config - Password Set: {'Yes' if app.config['MAIL_PASSWORD'] else 'No'}")
+print(f"🔧 Email Config - Port: {app.config['MAIL_PORT']}")
+print(f"🔧 Email Config - TLS: {app.config['MAIL_USE_TLS']}")
 
 # -------------------------------
 # Initialize Extensions
