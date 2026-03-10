@@ -18,15 +18,15 @@ services:
     # JWT Configuration
     - key: JWT_SECRET_KEY
       generateValue: true
-    # Gmail SMTP Configuration (FIXED)
+    # Gmail SMTP Configuration (FIXED - Try SSL Port 465)
     - key: MAIL_SERVER
       value: smtp.gmail.com
     - key: MAIL_PORT
-      value: 587
+      value: 465
     - key: MAIL_USE_TLS
-      value: true
-    - key: MAIL_USE_SSL
       value: false
+    - key: MAIL_USE_SSL
+      value: true
     - key: MAIL_USERNAME
       sync: false
     - key: MAIL_PASSWORD
