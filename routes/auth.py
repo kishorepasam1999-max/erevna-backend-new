@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from flask import request
+from flask import request, current_app
 from models.user import User
 from models.otp import OTP
 from services.email_service import send_otp_email
@@ -123,10 +123,13 @@ class Signin(Resource):
         
         # Email OTP
         try:
+            print(f"📧 Attempting to send OTP to {user.email}")
+            print(f"🔧 Mail config: {current_app.config.get('MAIL_SERVER')}")
             send_otp_email(user.email, otp)
             print(f"✅ OTP email sent to {user.email}")
         except Exception as e:
             print(f"❌ Email sending failed: {e}")
+            print(f"🔧 Debug info - Server: {current_app.config.get('MAIL_SERVER')}, User: {current_app.config.get('MAIL_USERNAME')}")
             # Continue without email for now
             return {
                 "success": True,
