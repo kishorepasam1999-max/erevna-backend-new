@@ -14,6 +14,10 @@ psycopg2-binary==2.9.11
 pandas==3.0.0
 numpy==2.4.2
 
+# AWS SES for Email
+boto3==1.34.144
+botocore==1.34.144
+
 # Essential Utilities
 python-dotenv==1.2.1
 requests==2.32.5
