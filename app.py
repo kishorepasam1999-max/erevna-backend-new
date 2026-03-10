@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_restx import Api
 from extensions import db, bcrypt, jwt, mail
 import os
 from dotenv import load_dotenv
