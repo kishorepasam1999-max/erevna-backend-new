@@ -75,10 +75,11 @@ app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
 app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'false').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '21bq1a0569@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'qjjmyzidywxxasbi')  # Your correct app password
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Remove fallback for security
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Remove fallback for security
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', '21bq1a0569@gmail.com')
 app.config['MAIL_DEBUG'] = os.getenv('MAIL_DEBUG', 'true').lower() == 'true'
+app.config['MAIL_SUPPRESS_SEND'] = False  # ChatGPT recommended
 
 # Debug: Print email configuration
 print(f"🔧 Email Config - Server: {app.config['MAIL_SERVER']}")
@@ -88,6 +89,7 @@ print(f"🔧 Email Config - Port: {app.config['MAIL_PORT']}")
 print(f"🔧 Email Config - TLS: {app.config['MAIL_USE_TLS']}")
 print(f"🔧 Email Config - SSL: {app.config['MAIL_USE_SSL']}")
 print(f"🔧 Email Config - Debug: {app.config['MAIL_DEBUG']}")
+print(f"🔧 Email Config - Suppress Send: {app.config['MAIL_SUPPRESS_SEND']}")
 
 # -------------------------------
 # Initialize Extensions

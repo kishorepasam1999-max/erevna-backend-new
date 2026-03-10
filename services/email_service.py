@@ -113,34 +113,25 @@ def send_otp_email_ses(email, otp):
 
 def send_otp_email(email, otp):
     """Send OTP using Flask-Mail with proper error logging"""
+    import traceback
+    
     try:
-        print(f"📧 Attempting to send OTP to {email}")
-        print(f"🔧 Mail Server: {current_app.config.get('MAIL_SERVER')}")
-        print(f"🔧 Mail Port: {current_app.config.get('MAIL_PORT')}")
-        print(f"🔧 Mail Username: {current_app.config.get('MAIL_USERNAME')}")
-        print(f"🔧 Mail TLS: {current_app.config.get('MAIL_USE_TLS')}")
-        print(f"🔧 Mail SSL: {current_app.config.get('MAIL_USE_SSL')}")
-        print(f"🔧 Mail Debug: {current_app.config.get('MAIL_DEBUG')}")
-        print(f"🔧 Mail Password Set: {'Yes' if current_app.config.get('MAIL_PASSWORD') else 'No'}")
-
-        msg = Message(
-            subject="Your Login OTP",
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
-            recipients=[email]
-        )
-        msg.body = f"Your OTP is {otp}. It expires in 5 minutes."
+        print(f"� Attempting to send OTP to {email}")
         
-        # Enable SMTP debugging
-        import smtplib
-        smtplib.SMTP.debuglevel = 1
+        msg = Message(
+            subject="OTP Verification",
+            sender="21bq1a0569@gmail.com",
+            recipients=[email],
+            body=f"Your OTP is {otp}"
+        )
         
         mail.send(msg)
-        print(f"✅ OTP email sent successfully to {email}")
+        print("✅ Email sent successfully")
         
     except Exception as e:
-        print(f"❌ SMTP ERROR: {str(e)}")
-        print(f"❌ ERROR TYPE: {type(e).__name__}")
-        print(f"❌ ERROR DETAILS: {repr(e)}")
+        print("❌ EMAIL FAILED")
+        print("Error:", str(e))
+        traceback.print_exc()
         raise e
 
 
