@@ -1,13 +1,15 @@
 from flask_restx import Namespace, Resource, fields
-from flask import request
+from flask import request, send_file
 from extensions import db
 from models.games import Game
+from models.game_apk import GameAPK, APKInstallation
 from models.user import User
 from datetime import datetime
 import uuid
 import os
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-api = Namespace("Game APK", description="Game APK Management")
+api = Namespace("game_apk", description="Game APK Management")
 
 # ----------------------------------------------------------
 # NESTED MODELS (required for Swagger UI)
@@ -51,7 +53,7 @@ apk_installation_model = api.model("APKInstallation", {
 # GAME APK ENDPOINTS
 # ----------------------------------------------------------
 
-@api.route("/game-apk/upload")
+@api.route("/upload")
 class UploadAPK(Resource):
     @api.doc("upload_apk")
     @api.expect(game_apk_model)
@@ -64,137 +66,212 @@ class UploadAPK(Resource):
             
             file = request.files['file']
             game_id = request.form.get('game_id')
-            apk_version = request.form.get('apk_version')
-            min_android_version = request.form.get('min_android_version')
-            target_android_version = request.form.get('target_android_version')
+            apk_version = request.form.get('apk_version', '1.0.0')
+            min_android_version = request.form.get('min_android_version', '5.0')
+            target_android_version = request.form.get('target_android_version', '13')
             
             if not game_id:
                 return {"success": False, "message": "Game ID is required"}, 400
             
-            # Save file (simplified - in production use cloud storage)
+            # Check if game exists
+            game = Game.query.get(game_id)
+            if not game:
+                return {"success": False, "message": "Game not found"}, 404
+            
+            # Save file
             filename = f"{game_id}_{apk_version}_{file.filename}"
-            file_path = os.path.join('uploads', filename)
+            upload_dir = os.path.join(os.getcwd(), 'uploads')
+            file_path = os.path.join(upload_dir, filename)
             
             # Create uploads directory if it doesn't exist
-            if not os.path.exists('uploads'):
-                os.makedirs('uploads')
+            if not os.path.exists(upload_dir):
+                os.makedirs(upload_dir)
             
             file.save(file_path)
             
             # Create APK record
-            apk_record = {
-                'id': 1,
-                'game_id': int(game_id),
-                'apk_name': filename,
-                'apk_url': f"/uploads/{filename}",
-                'apk_size': os.path.getsize(file_path),
-                'apk_version': apk_version,
-                'apk_build_number': 1,
-                'min_android_version': min_android_version,
-                'target_android_version': target_android_version,
-                'permissions': "android.permission.INTERNET",
-                'is_active': True,
-                'upload_date': datetime.utcnow().isoformat(),
-                'download_count': 0,
-                'install_count': 0
-            }
+            apk = GameAPK(
+                game_id=int(game_id),
+                apk_name=filename,
+                apk_file_path=file_path,
+                apk_url=f"/game-apk/download/{filename}",
+                apk_size=os.path.getsize(file_path),
+                apk_version=apk_version,
+                apk_build_number=1,
+                min_android_version=min_android_version,
+                target_android_version=target_android_version,
+                package_name=f"com.erevna.game{game_id}",
+                permissions="android.permission.INTERNET,android.permission.WRITE_EXTERNAL_STORAGE"
+            )
             
-            return {"success": True, "message": "APK uploaded successfully", "apk": apk_record}
+            db.session.add(apk)
+            db.session.commit()
+            
+            return {"success": True, "message": "APK uploaded successfully", "apk": apk.to_dict()}
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/list")
+@api.route("/list")
 class GetAvailableAPKs(Resource):
     @api.doc("get_available_apks")
-    @api.marshal_list_with(game_apk_model)
     def get(self):
         """Get available APKs"""
         try:
-            # Return mock data for now
-            return {"success": True, "apks": []}
+            apks = GameAPK.query.filter_by(is_active=True, is_public=True).all()
+            return {"success": True, "apks": [apk.to_dict() for apk in apks]}
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/my-installations")
+@api.route("/my-installations")
 class GetMyInstallations(Resource):
     @api.doc("get_my_installations")
-    @api.marshal_list_with(apk_installation_model)
     @api.doc(security='Bearer')
+    @jwt_required()
     def get(self):
         """Get user's APK installations"""
         try:
-            return {"success": True, "installations": []}
+            from flask_jwt_extended import get_jwt_identity
+            user_id = get_jwt_identity()
+            
+            installations = APKInstallation.query.filter_by(user_id=user_id).all()
+            return {"success": True, "installations": [inst.to_dict() for inst in installations]}
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/install/<int:apk_id>")
+@api.route("/install/<int:apk_id>")
 class InstallAPK(Resource):
     @api.doc("install_apk")
     @api.doc(security='Bearer')
+    @jwt_required()
     def post(self, apk_id):
         """Install APK"""
         try:
-            installation = {
-                'id': 1,
-                'uuid': str(uuid.uuid4()),
-                'user_id': 1,
-                'game_id': apk_id,
-                'apk_id': apk_id,
-                'install_status': 'downloading',
-                'download_progress': 0,
-                'install_progress': 0,
-                'install_date': datetime.utcnow().isoformat(),
-                'last_updated': datetime.utcnow().isoformat(),
-                'device_id': None,
-                'last_played': None,
-                'play_count': 0,
-                'total_playtime': 0
-            }
+            from flask_jwt_extended import get_jwt_identity
+            user_id = get_jwt_identity()
             
-            return {"success": True, "message": "APK installation started", "installation": installation}
+            # Check if APK exists
+            apk = GameAPK.query.get(apk_id)
+            if not apk:
+                return {"success": False, "message": "APK not found"}, 404
+            
+            # Check if already installed
+            existing_install = APKInstallation.query.filter_by(
+                user_id=user_id, 
+                apk_id=apk_id, 
+                install_status='installed'
+            ).first()
+            
+            if existing_install:
+                return {"success": False, "message": "APK already installed"}, 400
+            
+            # Create installation record
+            installation = APKInstallation(
+                user_id=user_id,
+                game_id=apk.game_id,
+                apk_id=apk_id,
+                install_status='downloading',
+                device_id=request.form.get('device_id', 'unknown')
+            )
+            
+            db.session.add(installation)
+            db.session.commit()
+            
+            # Increment download count
+            apk.download_count += 1
+            db.session.commit()
+            
+            return {"success": True, "message": "APK installation started", "installation": installation.to_dict()}
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/update-progress/<int:installation_id>")
+@api.route("/update-progress/<int:installation_id>")
 class UpdateProgress(Resource):
     @api.doc("update_progress")
     @api.doc(security='Bearer')
     def put(self, installation_id):
         """Update installation progress"""
         try:
+            from flask_jwt_extended import get_jwt_identity
+            user_id = get_jwt_identity()
+            
             data = request.get_json()
-            return {"success": True, "message": "Progress updated successfully"}
+            installation = APKInstallation.query.filter_by(
+                id=installation_id, 
+                user_id=user_id
+            ).first()
+            
+            if not installation:
+                return {"success": False, "message": "Installation not found"}, 404
+            
+            # Update progress
+            if 'download_progress' in data:
+                installation.download_progress = data['download_progress']
+            
+            if 'install_progress' in data:
+                installation.install_progress = data['install_progress']
+            
+            if 'install_status' in data:
+                installation.install_status = data['install_status']
+                if data['install_status'] == 'installed':
+                    installation.install_date = datetime.utcnow()
+                    # Increment install count
+                    installation.apk.install_count += 1
+            
+            installation.last_updated = datetime.utcnow()
+            db.session.commit()
+            
+            return {"success": True, "message": "Progress updated successfully", "installation": installation.to_dict()}
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/launch/<int:installation_id>")
+@api.route("/launch/<int:installation_id>")
 class LaunchGame(Resource):
     @api.doc("launch_game_from_apk")
     @api.doc(security='Bearer')
     def post(self, installation_id):
         """Launch game from APK"""
         try:
+            from flask_jwt_extended import get_jwt_identity
+            user_id = get_jwt_identity()
+            
+            installation = APKInstallation.query.filter_by(
+                id=installation_id, 
+                user_id=user_id,
+                install_status='installed'
+            ).first()
+            
+            if not installation:
+                return {"success": False, "message": "Game installation not found"}, 404
+            
+            # Update play statistics
+            installation.last_played = datetime.utcnow()
+            installation.play_count += 1
+            db.session.commit()
+            
             return {
                 "success": True,
                 "message": "Game launched successfully",
                 "game_info": {
-                    "id": installation_id,
-                    "name": "Game Name",
-                    "version": "1.0.0"
+                    "id": installation.game_id,
+                    "name": installation.game.game_name if installation.game else "Unknown Game",
+                    "package_name": installation.apk.package_name,
+                    "version": installation.apk.apk_version
                 }
             }
         except Exception as e:
             return {"success": False, "message": str(e)}, 500
 
-@api.route("/game-apk/download/<string:filename>")
+@api.route("/download/<string:filename>")
 class DownloadAPK(Resource):
     @api.doc("download_apk")
     def get(self, filename):
         """Download APK file"""
         try:
-            file_path = os.path.join('uploads', filename)
+            upload_dir = os.path.join(os.getcwd(), 'uploads')
+            file_path = os.path.join(upload_dir, filename)
+            
             if os.path.exists(file_path):
-                return {"success": True, "download_url": f"/uploads/{filename}"}
+                return send_file(file_path, as_attachment=True, download_name=filename)
             else:
                 return {"success": False, "message": "File not found"}, 404
         except Exception as e:

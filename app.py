@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restx import Api
+from flask_cors import CORS
 from extensions import db, bcrypt, jwt, mail
 import os
 from dotenv import load_dotenv
@@ -34,6 +34,7 @@ from routes.client_report_routes import api as client_report_ns
 from routes.user_routes import api as user_ns
 from routes.game_center_routes import api as game_center_ns
 from routes.game_apk_routes import api as game_apk_ns
+from models.game_apk import GameAPK, APKInstallation
 
 
 from flask_cors import CORS
@@ -45,19 +46,17 @@ app = Flask(__name__)
 # CORS Configuration
 # -------------------------------
 CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
-
-# -------------------------------
-# SQLAlchemy Configuration (Neon PostgreSQL)
-# -------------------------------
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Malli$12@localhost/erevna"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Kishore%4015@localhost/erevna?charset=utf8mb4&collation=utf8mb4_unicode_ci"
 # Neon PostgreSQL configuration - use environment variable or fallback
 neon_url = os.getenv('NEON_DATABASE_URL')
 if neon_url and neon_url != "postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/erevna?sslmode=require":
     app.config["SQLALCHEMY_DATABASE_URI"] = neon_url
+    print(f"🐘 Connected to Neon PostgreSQL")
 else:
-    # Fallback for development - replace with your actual Neon connection string
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://neondb_owner:npg_vDoJKWr7MaB5@ep-twilight-moon-a14vpqmd-pooler.ap-southeast-1.aws.neon.tech/erevna?sslmode=require&channel_binding=require"
+    # Fallback for development - use local SQLite for stability
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///erevna_local.db"
+    print(f"🗄️ Using local SQLite database")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # -------------------------------
@@ -142,4 +141,9 @@ except Exception as e:
 # Run App
 # -------------------------------
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Production-ready configuration
+    debug_mode = os.getenv('FLASK_ENV', 'development') != 'production'
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 5000))
+    
+    app.run(debug=debug_mode, host=host, port=port)

@@ -5,7 +5,7 @@ from models.otp import OTP
 from services.email_service import send_otp_email
 from datetime import datetime, timedelta
 from extensions import db
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy import or_
 
 
@@ -107,11 +107,12 @@ class Signin(Resource):
 
         # Delete previous OTPs
         OTP.query.filter_by(user_id=user.id, is_used=False).delete()
-
+        db.session.commit()
+        
         # Generate OTP
         otp = OTP.generate()
         expires = datetime.utcnow() + timedelta(minutes=5)
-
+        
         otp_entry = OTP(
             user_id=user.id,
             otp_code=otp,
@@ -119,10 +120,10 @@ class Signin(Resource):
         )
         db.session.add(otp_entry)
         db.session.commit()
-
+        
         # Email OTP
         send_otp_email(user.email, otp)
-
+        
         return {
             "success": True,
             "message": "OTP sent to your registered email.",
@@ -148,7 +149,7 @@ class VerifyOTP(Resource):
 
         # Find user by email or name
         user = User.query.filter(
-            or_(
+            db.or_(
                 User.email == identifier,
                 User.name == identifier
             )
@@ -156,17 +157,14 @@ class VerifyOTP(Resource):
 
         if not user:
             return {"success": False, "message": "User not found"}, 400
-
-        # Fetch latest OTP for this user
-        otp_record = OTP.query.filter_by(
-            user_id=user.id,
-            is_used=False
-        ).order_by(OTP.id.desc()).first()
-
-        if not otp_record:
-            return {"success": False, "message": "OTP not found or already used"}, 400
         
-        # Check if OTP is expired
+        # Find unused OTP for this user
+        otp_record = OTP.query.filter_by(user_id=user.id, is_used=False).first()
+        
+        if not otp_record:
+            return {"success": False, "message": "No valid OTP found"}, 400
+        
+        # Check if OTP has expired
         if otp_record.expires_at < datetime.utcnow():
             return {"success": False, "message": "OTP expired"}, 400
         
@@ -177,9 +175,12 @@ class VerifyOTP(Resource):
         # Mark OTP as used
         otp_record.is_used = True
         db.session.commit()
-
+        
         # Generate JWT token
-        token = create_access_token(identity=user.id)
+        try:
+            token = create_access_token(identity=str(user.id))
+        except Exception as e:
+            return {"success": False, "message": f"Token generation failed: {str(e)}"}, 500
 
         return {
             "success": True,
@@ -187,4 +188,35 @@ class VerifyOTP(Resource):
             "token": token,
             "user": user.serialize()
         }, 200
+
+
+# --------------------------------------------------------------------------
+# GET CURRENT USER
+# --------------------------------------------------------------------------
+@api.route('/me')
+class GetCurrentUser(Resource):
+
+    @api.doc(consumes=['application/json'])
+    @jwt_required()
+    def get(self):
+        """Get current authenticated user"""
+        
+        try:
+            # Verify JWT token
+            current_user_id = get_jwt_identity()
+            if not current_user_id:
+                return {"success": False, "message": "Invalid token"}, 401
+            
+            # Get user from database
+            user = User.query.get(current_user_id)
+            if not user:
+                return {"success": False, "message": "User not found"}, 404
+            
+            return {
+                "success": True,
+                "user": user.serialize()
+            }, 200
+            
+        except Exception as e:
+            return {"success": False, "message": str(e)}, 500
 
