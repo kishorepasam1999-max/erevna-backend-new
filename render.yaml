@@ -7,7 +7,6 @@ services:
   envVars:
     - key: NEON_DATABASE_URL
       sync: false
-      value: ""  # Leave empty, set in dashboard
     - key: JWT_SECRET_KEY
       generateValue: true
     - key: FLASK_ENV
