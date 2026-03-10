@@ -13,3 +13,15 @@ services:
       value: production
     - key: HOST
       value: 0.0.0.0
+    - key: MAIL_SERVER
+      value: smtp.gmail.com
+    - key: MAIL_PORT
+      value: 587
+    - key: MAIL_USE_TLS
+      value: true
+    - key: MAIL_USERNAME
+      sync: false
+    - key: MAIL_PASSWORD
+      sync: false
+    - key: MAIL_DEFAULT_SENDER
+      sync: false
