@@ -22,6 +22,24 @@ services:
     - key: RESEND_API_KEY
       value: "re_eRXuzFpX_BEmVf765HMZ7d4Udv1bULzun"
       sync: false
+    # Gmail SMTP Configuration (Fallback)
+    - key: MAIL_SERVER
+      value: "smtp.gmail.com"
+    - key: MAIL_PORT
+      value: "587"
+    - key: MAIL_USE_TLS
+      value: "true"
+    - key: MAIL_USE_SSL
+      value: "false"
+    - key: MAIL_USERNAME
+      value: "21bq1a0569@gmail.com"
+    - key: MAIL_PASSWORD
+      value: "qjjmyzidywxxasbi"
+      sync: false
+    - key: MAIL_DEFAULT_SENDER
+      value: "21bq1a0569@gmail.com"
+    - key: MAIL_DEBUG
+      value: "true"
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-11-v3"
+      value: "2025-03-11-v4"
