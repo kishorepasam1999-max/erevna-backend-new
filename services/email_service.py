@@ -112,8 +112,15 @@ def send_otp_email_ses(email, otp):
 
 
 def send_otp_email(email, otp):
-    """Send OTP using Resend API (cloud-friendly solution)"""
-    return send_otp_email_resend(email, otp)
+    """Send OTP using Resend API with Gmail SMTP fallback"""
+    # Try Resend first
+    resend_result = send_otp_email_resend(email, otp)
+    if resend_result:
+        return resend_result
+    
+    # Fallback to Gmail SMTP if Resend fails
+    print("⚠️ Resend failed, trying Gmail SMTP fallback")
+    return send_otp_email_gmail(email, otp)
 
 
 def send_otp_email_resend(email, otp):
@@ -148,6 +155,25 @@ def send_otp_email_resend(email, otp):
             
     except Exception as e:
         print(f"❌ Resend error: {str(e)}")
+        return False
+
+
+def send_otp_email_gmail(email, otp):
+    """Send OTP using Gmail SMTP (fallback option)"""
+    try:
+        msg = Message(
+            subject="Your Login OTP",
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+            recipients=[email]
+        )
+        msg.body = f"Your OTP is {otp}. It expires in 5 minutes."
+        
+        mail.send(msg)
+        print(f"✅ OTP email sent via Gmail SMTP to {email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Gmail SMTP error: {str(e)}")
         return False
 
 

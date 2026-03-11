@@ -20,7 +20,8 @@ services:
       generateValue: true
     # Resend Email API (Cloud-Friendly Solution)
     - key: RESEND_API_KEY
+      value: "re_eRXuzFpX_BEmVf765HMZ7d4Udv1bULzun"
       sync: false
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-10-v2"
+      value: "2025-03-11-v3"
