@@ -42,4 +42,4 @@ services:
       value: "true"
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-11-v5"
+      value: "2025-03-11-v6"

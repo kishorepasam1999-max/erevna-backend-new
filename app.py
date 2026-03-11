@@ -82,6 +82,10 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', '21bq1a0569
 app.config['MAIL_DEBUG'] = os.getenv('MAIL_DEBUG', 'true').lower() == 'true'
 app.config['MAIL_SUPPRESS_SEND'] = False  # ChatGPT recommended
 
+# Initialize Flask-Mail with app
+mail.init_app(app)
+print(f"🔧 Flask-Mail initialized with app")
+
 # Check if Resend API key is available
 resend_api_key = os.getenv('RESEND_API_KEY')
 if resend_api_key:
