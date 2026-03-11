@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import secrets
 import string
 import requests
+import threading
 
 load_dotenv()
 
@@ -112,15 +113,14 @@ def send_otp_email_ses(email, otp):
 
 
 def send_otp_email(email, otp):
-    """Send OTP using Resend API with Gmail SMTP fallback"""
-    # Try Resend first
-    resend_result = send_otp_email_resend(email, otp)
-    if resend_result:
-        return resend_result
-    
-    # Fallback to Gmail SMTP if Resend fails
-    print("⚠️ Resend failed, trying Gmail SMTP fallback")
-    return send_otp_email_gmail(email, otp)
+    """Send OTP using Resend API only - no fallback to prevent blocking"""
+    # Send email in background thread to prevent blocking
+    threading.Thread(
+        target=send_otp_email_resend,
+        args=(email, otp),
+        daemon=True
+    ).start()
+    return True  # Return immediately, email sent in background
 
 
 def send_otp_email_resend(email, otp):
@@ -144,7 +144,7 @@ def send_otp_email_resend(email, otp):
             "text": f"Your OTP is {otp}. It expires in 5 minutes."
         }
         
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=5)
         
         if response.status_code == 200:
             print(f"✅ OTP email sent via Resend to {email}")
