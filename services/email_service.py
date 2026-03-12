@@ -141,8 +141,8 @@ def send_otp_email_brevo(email, otp):
         
         data = {
             "sender": {
-                "name": "OTP Service",
-                "email": "21bq1a0569@gmail.com"
+                "name": "Kishore Pasam",
+                "email": "kishorepasam1999@gmail.com"
             },
             "to": [
                 {"email": email}
