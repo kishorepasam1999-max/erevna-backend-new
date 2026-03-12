@@ -53,10 +53,22 @@ CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
 neon_url = os.getenv('NEON_DATABASE_URL')
 if neon_url and neon_url != "postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/erevna?sslmode=require":
     app.config["SQLALCHEMY_DATABASE_URI"] = neon_url
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_timeout": 30,
+        "connect_timeout": 30
+    }
     print(f"🐘 Connected to Neon PostgreSQL")
 else:
     # Fallback for development - use local SQLite for stability
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///erevna_local.db"
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_timeout": 30,
+        "connect_timeout": 30
+    }
     print(f"🗄️ Using local SQLite database")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

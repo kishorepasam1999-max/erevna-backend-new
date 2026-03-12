@@ -75,8 +75,14 @@ class Signup(Resource):
         )
         user.set_password(data["password"])
 
-        db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.add(user)
+            db.session.commit()
+            print(f"✅ User created successfully: {data['email']}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Database error during signup: {str(e)}")
+            return {"success": False, "message": f"Database error: {str(e)}"}, 500
 
         return {"success": True, "message": "Account created successfully"}, 201
 
