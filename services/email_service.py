@@ -113,48 +113,57 @@ def send_otp_email_ses(email, otp):
 
 
 def send_otp_email(email, otp):
-    """Send OTP using Resend API only - no fallback to prevent blocking"""
-    # Send email in background thread to prevent blocking
+    """Send OTP using Brevo API (no domain required)"""
+    # Use Brevo API - no domain verification needed
     threading.Thread(
-        target=send_otp_email_resend,
+        target=send_otp_email_brevo,
         args=(email, otp),
         daemon=True
     ).start()
+    print(f"📧 Sending OTP via Brevo to {email}")
     return True  # Return immediately, email sent in background
 
 
-def send_otp_email_resend(email, otp):
-    """Send OTP using Resend API (works on cloud platforms)"""
+def send_otp_email_brevo(email, otp):
+    """Send OTP using Brevo API"""
     try:
-        api_key = os.getenv('RESEND_API_KEY')
+        api_key = os.getenv('BREVO_API_KEY')
         if not api_key:
-            print("❌ Resend API key not found")
+            print("❌ Brevo API key not found")
             return False
             
-        url = "https://api.resend.com/emails"
+        url = "https://api.brevo.com/v3/smtp/email"
         headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "accept": "application/json",
+            "api-key": api_key,
+            "content-type": "application/json"
         }
         
         data = {
-            "from": "onboarding@resend.dev",
-            "to": [email],
+            "sender": {
+                "name": "OTP Service",
+                "email": "21bq1a0569@gmail.com"
+            },
+            "to": [
+                {"email": email}
+            ],
             "subject": "Your Login OTP",
-            "text": f"Your OTP is {otp}. It expires in 5 minutes."
+            "textContent": f"Your OTP is {otp}. It expires in 5 minutes."
         }
         
-        response = requests.post(url, headers=headers, json=data, timeout=5)
+        response = requests.post(url, headers=headers, json=data, timeout=10)
         
-        if response.status_code == 200:
-            print(f"✅ OTP email sent via Resend to {email}")
+        print("Brevo Response:", response.status_code, response.text)
+        
+        if response.status_code == 200 or response.status_code == 201:
+            print(f"✅ OTP email sent via Brevo to {email}")
             return True
         else:
-            print(f"❌ Resend error: {response.status_code} - {response.text}")
+            print(f"❌ Brevo error: {response.status_code} - {response.text}")
             return False
             
     except Exception as e:
-        print(f"❌ Resend error: {str(e)}")
+        print(f"❌ Brevo error: {str(e)}")
         return False
 
 

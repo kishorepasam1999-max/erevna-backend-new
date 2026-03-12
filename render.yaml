@@ -18,9 +18,9 @@ services:
     # JWT Configuration
     - key: JWT_SECRET_KEY
       generateValue: true
-    # Resend Email API (Cloud-Friendly Solution)
-    - key: RESEND_API_KEY
-      value: "re_6TyefXA3_HXpG2GbGkugisk4BoBxzg3NV"
+    # Brevo Email API (No Domain Required)
+    - key: BREVO_API_KEY
+      value: "xkeysib-YOUR_BREVO_API_KEY_HERE"
       sync: false
     # Gmail SMTP Configuration (Fallback)
     - key: MAIL_SERVER
@@ -42,4 +42,4 @@ services:
       value: "true"
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-12-v3-chatgpt-fix"
+      value: "2025-03-12-v6-final-brevo-fix"
