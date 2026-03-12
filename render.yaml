@@ -42,4 +42,4 @@ services:
       value: "true"
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-12-v2"
+      value: "2025-03-12-v3-chatgpt-fix"
