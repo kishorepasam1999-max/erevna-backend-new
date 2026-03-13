@@ -1,37 +1,3 @@
-# from extensions import db
-# import uuid
-# from datetime import datetime
-# import json
-# from sqlalchemy import TypeDecorator
-
-# # class SafeJSON(TypeDecorator):
-# #     """A JSON type that handles invalid JSON gracefully."""
-# #     impl = db.JSON  # Use the underlying JSON type
-# #     def process_result_value(self, value, dialect):
-# #         if value is None:
-# #             return None
-# #         try:
-# #             if isinstance(value, str):
-# #                 return json.loads(value) if value.strip() else {}
-# #             return value
-# #         except (json.JSONDecodeError, TypeError):
-# #             return {}
-
-# def generate_uuid():
-#     return str(uuid.uuid4())
-
-
-# class Game(db.Model):
-#     __tablename__ = "games"
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     uuid = db.Column(db.String(36), unique=True, default=generate_uuid)
-
-#     game_name = db.Column(db.String(255), nullable=False)
-#     game_type = db.Column(db.String(255))
-#     version = db.Column(db.String(50))
-#     release_date = db.Column(db.Date)
-#     developer = db.Column(db.String(255))
 #     description = db.Column(db.Text)
 #     max_players = db.Column(db.Integer)
 #     average_duration = db.Column(db.String(100))
