@@ -59,12 +59,15 @@ class GetAvailableGames(Resource):
                     'id': game.id,
                     'game_name': game.game_name,
                     'description': game.description,
-                    'game_url': None,  # Not available in Game model
+                    'game_url': f"/game-apk/download/{game.game_name.replace(' ', '_').lower()}.apk",  # Construct URL
                     'game_file_size': None,  # Not available in Game model
                     'game_version': game.version,
-                    'min_os_version': None,  # Not available in Game model
+                    'min_os_version': "5.0",  # Default Android version
                     'game_category': game.category,
-                    'is_active': game.is_active
+                    'is_active': game.is_active,
+                    # Add additional fields for consistency
+                    'game_type': game.game_type,
+                    'game_mode': game.game_mode
                 })
             return {"success": True, "games": game_list}
         except Exception as e:
