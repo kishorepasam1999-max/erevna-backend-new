@@ -70,9 +70,9 @@ instance/
 *.db
 *.sqlite3
 
-# Uploads
-uploads/
+# Uploads (keep APK files)
 temp/
+!uploads/*.apk
 
 # Jupyter Notebook
 .ipynb_checkpoints
