@@ -42,4 +42,4 @@ services:
       value: "true"
     # Deployment trigger
     - key: DEPLOY_VERSION
-      value: "2025-03-13-v8-api-fix"
+      value: "2025-03-13-v9-procfile-fix"
