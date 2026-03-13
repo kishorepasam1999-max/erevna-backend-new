@@ -59,10 +59,10 @@ class GetAvailableGames(Resource):
                     'id': game.id,
                     'game_name': game.game_name,
                     'description': game.description,
-                    'game_url': game.game_url,
-                    'game_file_size': game.game_file_size,
+                    'game_url': None,  # Not available in Game model
+                    'game_file_size': None,  # Not available in Game model
                     'game_version': game.version,
-                    'min_os_version': game.min_android_version,
+                    'min_os_version': None,  # Not available in Game model
                     'game_category': game.category,
                     'is_active': game.is_active
                 })
