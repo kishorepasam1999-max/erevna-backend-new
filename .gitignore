@@ -89,3 +89,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# NOTE: REMOVED build/ exclusion to allow Unity WebGL Build files
+# Unity Build files are in public/games/snakes-ladder/Build/ and should be deployed
