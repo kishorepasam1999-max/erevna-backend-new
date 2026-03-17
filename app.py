@@ -129,11 +129,25 @@ if not os.path.exists(GAMES_DIR):
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
     """Serve Unity WebGL game files with proper MIME types"""
-    # URL decode the filename to handle spaces properly
+    # URL decode the filename to handle spaces and special characters properly
+    filename = urllib.parse.unquote(filename)
+    # Handle double encoding for special characters like &
     filename = urllib.parse.unquote(filename)
     game_path = os.path.join(GAMES_DIR, game_name)
     
     print(f"🎮 Serving file: {filename} from {game_path}")
+    print(f"🔍 Full path: {os.path.join(game_path, filename)}")
+    
+    # Check if file exists before trying to serve
+    full_path = os.path.join(game_path, filename)
+    if not os.path.exists(full_path):
+        print(f"❌ File not found: {full_path}")
+        # List available files for debugging
+        if os.path.exists(game_path):
+            print(f"📁 Available files in {game_path}:")
+            for f in os.listdir(game_path):
+                print(f"   - {f}")
+        return f"File not found: {filename}", 404
     
     # Set proper MIME types for Unity files
     mimetype = 'application/octet-stream'
