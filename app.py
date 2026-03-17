@@ -125,6 +125,14 @@ if not os.path.exists(GAMES_DIR):
     os.makedirs(GAMES_DIR, exist_ok=True)
     print(f"📁 Created games directory: {GAMES_DIR}")
 
+# Debug: Print current files
+print(f"🔍 Unity files in snakes-ladder Build folder:")
+if os.path.exists(os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')):
+    for f in os.listdir(os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')):
+        print(f"   📄 {f}")
+else:
+    print("❌ Build folder not found!")
+
 # Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
