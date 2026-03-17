@@ -113,6 +113,32 @@ else:
     print(f"🔧 Gmail Config - Suppress Send: {app.config['MAIL_SUPPRESS_SEND']}")
 
 # -------------------------------
+# Static Files for Unity WebGL Games
+# -------------------------------
+import os
+from flask import send_from_directory
+
+# Create public/games directory if it doesn't exist
+GAMES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'games')
+if not os.path.exists(GAMES_DIR):
+    os.makedirs(GAMES_DIR, exist_ok=True)
+    print(f"📁 Created games directory: {GAMES_DIR}")
+
+# Serve Unity WebGL games
+@app.route('/games/<path:game_name>/<path:filename>')
+def serve_game_files(game_name, filename):
+    """Serve Unity WebGL game files"""
+    game_path = os.path.join(GAMES_DIR, game_name)
+    return send_from_directory(game_path, filename)
+
+# Serve game index.html
+@app.route('/games/<path:game_name>/')
+def serve_game_index(game_name):
+    """Serve Unity WebGL game index.html"""
+    game_path = os.path.join(GAMES_DIR, game_name)
+    return send_from_directory(game_path, 'index.html')
+
+# -------------------------------
 # Initialize Extensions
 # -------------------------------
 db.init_app(app)
