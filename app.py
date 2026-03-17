@@ -116,7 +116,7 @@ else:
 # Static Files for Unity WebGL Games
 # -------------------------------
 import os
-from flask import send_from_directory
+from flask import send_from_directory, Response
 import urllib.parse
 
 # Create public/games directory if it doesn't exist
@@ -125,21 +125,57 @@ if not os.path.exists(GAMES_DIR):
     os.makedirs(GAMES_DIR, exist_ok=True)
     print(f"📁 Created games directory: {GAMES_DIR}")
 
-# Serve Unity WebGL games with proper URL encoding
+# Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
-    """Serve Unity WebGL game files"""
+    """Serve Unity WebGL game files with proper MIME types"""
     # URL decode the filename to handle spaces properly
     filename = urllib.parse.unquote(filename)
     game_path = os.path.join(GAMES_DIR, game_name)
-    return send_from_directory(game_path, filename)
+    
+    # Set proper MIME types for Unity files
+    mimetype = 'application/octet-stream'
+    if filename.endswith('.wasm'):
+        mimetype = 'application/wasm'
+    elif filename.endswith('.js'):
+        mimetype = 'application/javascript'
+    elif filename.endswith('.data'):
+        mimetype = 'application/octet-stream'
+    elif filename.endswith('.html'):
+        mimetype = 'text/html'
+    elif filename.endswith('.css'):
+        mimetype = 'text/css'
+    
+    try:
+        response = send_from_directory(game_path, filename, mimetype=mimetype)
+        # Add CORS headers for Unity WebGL
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        # Add WASM specific headers
+        if filename.endswith('.wasm'):
+            response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+            response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+        return response
+    except Exception as e:
+        print(f"Error serving file {filename}: {e}")
+        return f"File not found: {filename}", 404
 
 # Serve game index.html
 @app.route('/games/<path:game_name>/')
 def serve_game_index(game_name):
     """Serve Unity WebGL game index.html"""
     game_path = os.path.join(GAMES_DIR, game_name)
-    return send_from_directory(game_path, 'index.html')
+    try:
+        response = send_from_directory(game_path, 'index.html', mimetype='text/html')
+        # Add CORS headers for Unity WebGL
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
+    except Exception as e:
+        print(f"Error serving index.html for {game_name}: {e}")
+        return f"Game not found: {game_name}", 404
 
 # -------------------------------
 # Initialize Extensions
