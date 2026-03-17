@@ -133,6 +133,8 @@ def serve_game_files(game_name, filename):
     filename = urllib.parse.unquote(filename)
     game_path = os.path.join(GAMES_DIR, game_name)
     
+    print(f"🎮 Serving file: {filename} from {game_path}")
+    
     # Set proper MIME types for Unity files
     mimetype = 'application/octet-stream'
     if filename.endswith('.wasm'):
@@ -156,9 +158,10 @@ def serve_game_files(game_name, filename):
         if filename.endswith('.wasm'):
             response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
             response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+        print(f"✅ Successfully served: {filename} with MIME: {mimetype}")
         return response
     except Exception as e:
-        print(f"Error serving file {filename}: {e}")
+        print(f"❌ Error serving file {filename}: {e}")
         return f"File not found: {filename}", 404
 
 # Serve game index.html

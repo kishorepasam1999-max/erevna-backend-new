@@ -67,6 +67,15 @@
         productName: "Snakes And Ladder",
         productVersion: "0.8",
         showBanner: unityShowBanner,
+        // Add decompression settings for uncompressed files
+        decompressFallback: true,
+        // Disable compression since we're using uncompressed files
+        enableStreaming: false,
+        // Add proper WebGL settings
+        webGLContextAttributes: {
+          preserveDrawingBuffer: true,
+          powerPreference: "high-performance"
+        }
       };
 
       // By default Unity keeps WebGL canvas render target size matched with
