@@ -133,6 +133,8 @@ if os.path.exists(os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')):
 else:
     print("❌ Build folder not found!")
 
+print("🚀 Render deployment triggered - Unity files should be available")
+
 # Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
