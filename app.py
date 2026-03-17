@@ -206,6 +206,20 @@ def serve_game_index(game_name):
         print(f"Error serving index.html for {game_name}: {e}")
         return f"Game not found: {game_name}", 404
 
+# Debug endpoint to check files
+@app.route('/debug-files')
+def debug_files():
+    """Debug endpoint to list all Unity files"""
+    try:
+        build_path = os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')
+        if os.path.exists(build_path):
+            files = os.listdir(build_path)
+            return f"<h1>Unity Files in Build Folder:</h1><pre>{files}</pre>"
+        else:
+            return "<h1>❌ Build folder not found!</h1>"
+    except Exception as e:
+        return f"<h1>❌ Error: {e}</h1>"
+
 # -------------------------------
 # Initialize Extensions
 # -------------------------------
