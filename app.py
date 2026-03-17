@@ -117,6 +117,7 @@ else:
 # -------------------------------
 import os
 from flask import send_from_directory
+import urllib.parse
 
 # Create public/games directory if it doesn't exist
 GAMES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'games')
@@ -124,10 +125,12 @@ if not os.path.exists(GAMES_DIR):
     os.makedirs(GAMES_DIR, exist_ok=True)
     print(f"📁 Created games directory: {GAMES_DIR}")
 
-# Serve Unity WebGL games
+# Serve Unity WebGL games with proper URL encoding
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
     """Serve Unity WebGL game files"""
+    # URL decode the filename to handle spaces properly
+    filename = urllib.parse.unquote(filename)
     game_path = os.path.join(GAMES_DIR, game_name)
     return send_from_directory(game_path, filename)
 
