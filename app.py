@@ -137,6 +137,10 @@ else:
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
     """Serve Unity WebGL game files with proper MIME types"""
+    # Remove query parameters from filename (like ?v=2)
+    if '?' in filename:
+        filename = filename.split('?')[0]
+    
     # URL decode the filename to handle spaces and special characters properly
     filename = urllib.parse.unquote(filename)
     # Handle double encoding for special characters like &
