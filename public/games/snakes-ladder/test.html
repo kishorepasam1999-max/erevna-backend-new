@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unity WebGL Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>Unity WebGL Game Test</h1>
+    <p>Testing all Unity files are accessible...</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        const files = [
+            'index.html',
+            'Build/Snakes_&_Ladders_WebGL_Build_0.1.loader.js',
+            'Build/Snakes_&_Ladders_WebGL_Build_0.1.data',
+            'Build/Snakes_&_Ladders_WebGL_Build_0.1.framework.js',
+            'Build/Snakes_&_Ladders_WebGL_Build_0.1.wasm',
+            'TemplateData/style.css',
+            'TemplateData/favicon.ico'
+        ];
+        
+        const testResults = document.getElementById('test-results');
+        
+        async function testFile(filename) {
+            const div = document.createElement('div');
+            div.className = 'test-item loading';
+            div.innerHTML = `Testing: ${filename}...`;
+            testResults.appendChild(div);
+            
+            try {
+                const response = await fetch(filename);
+                if (response.ok) {
+                    div.className = 'test-item success';
+                    div.innerHTML = `✅ ${filename} - OK (${response.status})`;
+                    
+                    // Check MIME type for WASM
+                    if (filename.endsWith('.wasm')) {
+                        const mimeType = response.headers.get('Content-Type');
+                        div.innerHTML += `<br>MIME Type: ${mimeType}`;
+                    }
+                } else {
+                    div.className = 'test-item error';
+                    div.innerHTML = `❌ ${filename} - ERROR (${response.status})`;
+                }
+            } catch (error) {
+                div.className = 'test-item error';
+                div.innerHTML = `❌ ${filename} - ERROR: ${error.message}`;
+            }
+        }
+        
+        // Test all files
+        files.forEach(testFile);
+        
+        // Add link to actual game
+        setTimeout(() => {
+            const linkDiv = document.createElement('div');
+            linkDiv.className = 'test-item';
+            linkDiv.innerHTML = `<a href="index.html">🎮 Play Unity Game</a>`;
+            testResults.appendChild(linkDiv);
+        }, 1000);
+    </script>
+</body>
+</html>
