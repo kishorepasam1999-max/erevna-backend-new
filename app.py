@@ -135,6 +135,21 @@ else:
 
 print("🚀 Render deployment triggered - Unity files should be available")
 
+# Debug endpoint to check game folders
+@app.route('/debug-all')
+def debug_all():
+    import os
+    
+    base = os.path.join(GAMES_DIR)
+    result = {}
+
+    for game in os.listdir(base):
+        game_path = os.path.join(base, game)
+        if os.path.isdir(game_path):
+            result[game] = os.listdir(game_path)
+
+    return str(result)
+
 # Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
