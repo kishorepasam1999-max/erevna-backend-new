@@ -203,6 +203,16 @@ def serve_game_files(game_name, filename):
         elif base_filename.endswith('.data'):
             mimetype = 'application/octet-stream'
     
+    # Special handling for Unity WebGL files to prevent corruption
+    if 'Bingo_WebGL_Build_0.1' in filename:
+        # Ensure proper headers for Bingo files
+        if filename.endswith('.js'):
+            mimetype = 'application/javascript; charset=utf-8'
+        elif filename.endswith('.data'):
+            mimetype = 'application/octet-stream'
+        elif filename.endswith('.wasm'):
+            mimetype = 'application/wasm'
+    
     try:
         response = send_from_directory(game_path, filename, mimetype=mimetype)
         
@@ -211,19 +221,26 @@ def serve_game_files(game_name, filename):
             response.headers['Content-Encoding'] = 'gzip'
             print(f"🗜️ Serving compressed file: {filename} with Content-Encoding: gzip")
         
+        # Add special headers for Unity WebGL files
+        if filename.endswith('.wasm'):
+            response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+            response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        elif filename.endswith('.js'):
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        elif filename.endswith('.data'):
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        
         # Add CORS headers for Unity WebGL
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        # Add WASM specific headers
-        if filename.endswith('.wasm'):
-            response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
-            response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
-        print(f"✅ Successfully served: {filename} with MIME: {mimetype}")
-        return response
-    except Exception as e:
-        print(f"❌ Error serving file {filename}: {e}")
-        return f"File not found: {filename}", 404
 
 # Serve game index.html
 @app.route('/games/<path:game_name>/')
