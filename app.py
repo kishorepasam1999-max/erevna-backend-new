@@ -176,8 +176,26 @@ def serve_game_files(game_name, filename):
     elif filename.endswith('.css'):
         mimetype = 'text/css'
     
+    # Handle .gz compressed files for Unity WebGL
+    is_compressed = filename.endswith('.gz')
+    if is_compressed:
+        # Remove .gz from filename for MIME type detection
+        base_filename = filename[:-3]
+        if base_filename.endswith('.wasm'):
+            mimetype = 'application/wasm'
+        elif base_filename.endswith('.js'):
+            mimetype = 'application/javascript'
+        elif base_filename.endswith('.data'):
+            mimetype = 'application/octet-stream'
+    
     try:
         response = send_from_directory(game_path, filename, mimetype=mimetype)
+        
+        # Add compression headers for .gz files
+        if is_compressed:
+            response.headers['Content-Encoding'] = 'gzip'
+            print(f"🗜️ Serving compressed file: {filename} with Content-Encoding: gzip")
+        
         # Add CORS headers for Unity WebGL
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
