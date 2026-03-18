@@ -241,6 +241,11 @@ def serve_game_files(game_name, filename):
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        print(f"✅ Successfully served: {filename} with MIME: {mimetype}")
+        return response
+    except Exception as e:
+        print(f"❌ Error serving file {filename}: {e}")
+        return f"File not found: {filename}", 404
 
 # Serve game index.html
 @app.route('/games/<path:game_name>/')
