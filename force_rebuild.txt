@@ -1,1 +1,1 @@
-Force rebuild to deploy clean Bingo files - removed unnecessary directories - Bingo Build files now tracked - 2026-03-18-23:45
+Force rebuild - Bingo files tracked but not serving - 2026-03-19-12:55
