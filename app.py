@@ -41,7 +41,7 @@ from models.game_apk import GameAPK, APKInstallation
 from flask_cors import CORS
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='public', static_url_path='')
 
 # -------------------------------
 # CORS Configuration
@@ -120,12 +120,15 @@ from flask import send_from_directory, Response
 import urllib.parse
 
 # Create public/games directory if it doesn't exist
-GAMES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'games')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+GAMES_DIR = os.path.join(BASE_DIR, 'public', 'games')
 if not os.path.exists(GAMES_DIR):
     os.makedirs(GAMES_DIR, exist_ok=True)
     print(f"📁 Created games directory: {GAMES_DIR}")
 
 # Debug: Print current files
+print(f"🔍 BASE_DIR: {BASE_DIR}")
+print(f"🔍 GAMES_DIR: {GAMES_DIR}")
 print(f"🔍 Unity files in snakes-ladder Build folder:")
 if os.path.exists(os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')):
     for f in os.listdir(os.path.join(GAMES_DIR, 'snakes-ladder', 'Build')):
@@ -149,6 +152,25 @@ def debug_all():
             result[game] = os.listdir(game_path)
 
     return str(result)
+
+# Debug endpoint to check paths and Bingo files
+@app.route('/debug-path')
+def debug_path():
+    import os
+    
+    bingo_build_path = os.path.join(GAMES_DIR, 'bingo', 'Build')
+    files = []
+    
+    if os.path.exists(bingo_build_path):
+        files = os.listdir(bingo_build_path)
+    
+    return {
+        "BASE_DIR": BASE_DIR,
+        "GAMES_DIR": GAMES_DIR,
+        "BINGO_BUILD_PATH": bingo_build_path,
+        "BINGO_FILES": files,
+        "BINGO_BUILD_EXISTS": os.path.exists(bingo_build_path)
+    }
 
 # Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
