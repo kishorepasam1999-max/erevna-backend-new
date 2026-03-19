@@ -1,1 +1,1 @@
-Force Render rebuild - Bingo Build files now tracked - 2026-03-18-23:45
+Force rebuild to deploy clean Bingo files - removed unnecessary directories - Bingo Build files now tracked - 2026-03-18-23:45
