@@ -153,7 +153,7 @@ def debug_all():
 # Serve Unity WebGL games with proper URL encoding and MIME types
 @app.route('/games/<path:game_name>/<path:filename>')
 def serve_game_files(game_name, filename):
-    """Serve Unity WebGL game files with proper MIME types"""
+    """Serve Unity WebGL game files with proper MIME types and compression handling"""
     # Remove query parameters from filename (like ?v=2)
     if '?' in filename:
         filename = filename.split('?')[0]
@@ -163,14 +163,14 @@ def serve_game_files(game_name, filename):
     # Handle double encoding for special characters like &
     filename = urllib.parse.unquote(filename)
     game_path = os.path.join(GAMES_DIR, game_name)
+    file_path = os.path.join(game_path, filename)
     
     print(f"🎮 Serving file: {filename} from {game_path}")
-    print(f"🔍 Full path: {os.path.join(game_path, filename)}")
+    print(f"🔍 Full path: {file_path}")
     
     # Check if file exists before trying to serve
-    full_path = os.path.join(game_path, filename)
-    if not os.path.exists(full_path):
-        print(f"❌ File not found: {full_path}")
+    if not os.path.exists(file_path):
+        print(f"❌ File not found: {file_path}")
         # List available files for debugging
         if os.path.exists(game_path):
             print(f"📁 Available files in {game_path}:")
@@ -186,53 +186,64 @@ def serve_game_files(game_name, filename):
         mimetype = 'application/javascript'
     elif filename.endswith('.data'):
         mimetype = 'application/octet-stream'
-    elif filename.endswith('.html'):
-        mimetype = 'text/html'
     elif filename.endswith('.css'):
         mimetype = 'text/css'
+    elif filename.endswith('.png'):
+        mimetype = 'image/png'
+    elif filename.endswith('.ico'):
+        mimetype = 'image/x-icon'
+    elif filename.endswith('.html'):
+        mimetype = 'text/html'
     
-    # Handle .gz compressed files for Unity WebGL
-    is_compressed = filename.endswith('.gz')
+    # Handle compressed files
+    is_compressed = filename.endswith('.gz') or filename.endswith('.gzip')
+    actual_filename = filename
+    
+    # For compressed files, determine the original filename and MIME type
     if is_compressed:
-        # Remove .gz from filename for MIME type detection
-        base_filename = filename[:-3]
-        if base_filename.endswith('.wasm'):
-            mimetype = 'application/wasm'
-        elif base_filename.endswith('.js'):
+        if filename.endswith('.js.gz') or filename.endswith('.js.gzip'):
+            actual_filename = filename.replace('.gz', '').replace('.gzip', '')
             mimetype = 'application/javascript'
-        elif base_filename.endswith('.data'):
+        elif filename.endswith('.wasm.gz') or filename.endswith('.wasm.gzip'):
+            actual_filename = filename.replace('.gz', '').replace('.gzip', '')
+            mimetype = 'application/wasm'
+        elif filename.endswith('.data.gz') or filename.endswith('.data.gzip'):
+            actual_filename = filename.replace('.gz', '').replace('.gzip', '')
             mimetype = 'application/octet-stream'
     
-    # Special handling for Unity WebGL files to prevent corruption
-    if 'Bingo_WebGL_Build_0.1' in filename:
-        # Ensure proper headers for Bingo files
-        if filename.endswith('.js'):
-            mimetype = 'application/javascript; charset=utf-8'
-        elif filename.endswith('.data'):
-            mimetype = 'application/octet-stream'
-        elif filename.endswith('.wasm'):
-            mimetype = 'application/wasm'
+    print(f"📄 Serving file: {actual_filename} with MIME: {mimetype}")
     
     try:
-        response = send_from_directory(game_path, filename, mimetype=mimetype)
-        
-        # Add compression headers for .gz files
-        if is_compressed:
-            response.headers['Content-Encoding'] = 'gzip'
-            print(f"🗜️ Serving compressed file: {filename} with Content-Encoding: gzip")
+        # If the file is compressed but the request is for uncompressed version
+        if not filename.endswith('.gz') and not filename.endswith('.gzip'):
+            # Check if compressed version exists
+            compressed_path = file_path + '.gz'
+            if os.path.exists(compressed_path):
+                print(f"🗜️ Found compressed version: {compressed_path}")
+                # Serve the compressed file with proper headers
+                response = send_from_directory(game_path, filename + '.gz', mimetype=mimetype)
+                response.headers['Content-Encoding'] = 'gzip'
+                print(f"🗜️ Serving compressed file: {filename}.gz with Content-Encoding: gzip")
+            else:
+                # Serve uncompressed file
+                response = send_from_directory(game_path, filename, mimetype=mimetype)
+                print(f"📄 Serving uncompressed file: {filename}")
+        else:
+            # Serve the file as requested
+            response = send_from_directory(game_path, filename, mimetype=mimetype)
         
         # Add special headers for Unity WebGL files
-        if filename.endswith('.wasm'):
+        if filename.endswith('.wasm') or actual_filename.endswith('.wasm'):
             response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
             response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
-        elif filename.endswith('.js'):
+        elif filename.endswith('.js') or actual_filename.endswith('.js'):
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
-        elif filename.endswith('.data'):
+        elif filename.endswith('.data') or actual_filename.endswith('.data'):
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
