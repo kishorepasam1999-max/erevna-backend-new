@@ -3,13 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Bingo v2</title>
+    <title>Unity WebGL Player | Bingo</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -61,21 +57,18 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Bingo_WebGL_Build_0.1.loader.js?v=2";
+      var loaderUrl = buildUrl + "/Bingo_WebGL_Build_0.1.loader.js";
       var config = {
-        dataUrl: buildUrl + "/Bingo_WebGL_Build_0.1.data?v=2",
-        frameworkUrl: buildUrl + "/Bingo_WebGL_Build_0.1.framework.js?v=2",
-        codeUrl: buildUrl + "/Bingo_WebGL_Build_0.1.wasm?v=2",
+        dataUrl: buildUrl + "/Bingo_WebGL_Build_0.1.data",
+        frameworkUrl: buildUrl + "/Bingo_WebGL_Build_0.1.framework.js",
+        codeUrl: buildUrl + "/Bingo_WebGL_Build_0.1.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "ErevnaGames",
         productName: "Bingo",
         productVersion: "0.3",
         showBanner: unityShowBanner,
-        // Add decompression settings for uncompressed files
         decompressFallback: true,
-        // Disable compression since we're using uncompressed files
         enableStreaming: false,
-        // Add proper WebGL settings
         webGLContextAttributes: {
           preserveDrawingBuffer: true,
           powerPreference: "high-performance"
