@@ -247,6 +247,15 @@ def serve_game_files(game_name, filename):
         print(f"❌ Error serving file {filename}: {e}")
         return f"File not found: {filename}", 404
 
+# Fix compression headers for Unity WebGL files
+@app.after_request
+def remove_encoding(response):
+    """Remove compression headers to fix Unity WebGL corruption"""
+    # Remove Content-Encoding header to prevent corruption
+    response.headers.pop('Content-Encoding', None)
+    response.headers.pop('Content-Length', None)
+    return response
+
 # Serve game index.html
 @app.route('/games/<path:game_name>/')
 def serve_game_index(game_name):
